@@ -62,7 +62,7 @@ public class Feature{
 	private Integer assignmentId;
 	
 	private Service service;
-	private ArrayList<User> allUsers; // lista wszystkich abonentów
+	private ArrayList<Worker> allWorkers; // lista wszystkich abonentow
 
 	/**
 	 * Initializes a new instance, without starting interaction with Ericsson
@@ -104,7 +104,7 @@ public class Feature{
 		System.out.println("Starting SMS notification");
 		assignmentId = new Integer(itsSMSProcessor.startNotifications(Configuration.INSTANCE.getProperty("serviceNumber")));
 		
-		allUsers = new ArrayList<User>();
+		allWorkers = new ArrayList<Worker>();
 	    service = new Service(this);
 	}
 
@@ -152,38 +152,38 @@ public class Feature{
 	 */
 	protected void smsReceived(String aSender, String aReceiver,
 			String aMessageContent) {
-		System.out.println("Odebrano SMS-a o treœci: " + aMessageContent);		
+		System.out.println("Odebrano SMS-a o treï¿½ci: " + aMessageContent);		
 		
-		User user = checkList(aSender);		
-		//Rejestracja u¿ytkownika
-		if (aMessageContent.toLowerCase().equals("rejestracja") && user == null ) {
-			user = new User(aSender, itsLocationProcessor);
-			service.addUser(user);
-			System.out.println("Dodano u¿ytkownika o numerze: " + user.getNumer());
+		Worker worker = checkList(aSender);
+		//Rejestracja uï¿½ytkownika
+		if (aMessageContent.toLowerCase().equals("rejestracja") && worker == null ) {
+			worker = new Worker(aSender, itsLocationProcessor);
+			service.addWorker(worker);
+			System.out.println("Dodano uï¿½ytkownika o numerze: " + worker.getNumer());
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Jestes nowym uzytkownikiem serwisu");
-		} else if(aMessageContent.toLowerCase().equals("rejestracja") && user != null) {
+		} else if(aMessageContent.toLowerCase().equals("rejestracja") && worker != null) {
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Nie musisz sie rejestrowac, jestes juz czlonkiem serwisu");
 		}
 		
-		//Sprawdzenie pogody przez u¿ytkownika zarejestrowanego w serwisie
-		if (aMessageContent.toLowerCase().equals("pogoda") && user != null ) {
-			user.checkLocalization();			
+		//Sprawdzenie pogody przez uï¿½ytkownika zarejestrowanego w serwisie
+		if (aMessageContent.toLowerCase().equals("pogoda") && worker != null ) {
+			worker.checkLocalization();
 		}
 	
 		//Zapisanie sie do subskrypcji pogodowej
-		if (aMessageContent.toLowerCase().equals("subskrypcja") && user != null ) {
-			user.start();			
+		if (aMessageContent.toLowerCase().equals("subskrypcja") && worker != null ) {
+			worker.start();
 		}		
 		
 		//Zapisanie sie do subskrypcji pogodowej
-		if (aMessageContent.toLowerCase().equals("odsubskrybuj") && user != null ) {
-			user.stop();			
+		if (aMessageContent.toLowerCase().equals("odsubskrybuj") && worker != null ) {
+			worker.stop();
 		}	
 	}
 
-	private User checkList(String numer)
+	private Worker checkList(String numer)
 	{
-		for (User a : service.getUserOfService())
+		for (Worker a : service.getUserOfService())
 			if (a.getNumer().equalsIgnoreCase(numer))
 				return a;
 		
@@ -228,7 +228,7 @@ public class Feature{
 					.getBinaryContent(), "Current location");
 
 			if(latitude < 0.5 && longitude < 0.5) {
-				System.out.println("S³onecznie");
+				System.out.println("Sï¿½onecznie");
 			}
 			else if(latitude >= 0.5 && longitude < 0.5) {
 				System.out.println("Pada");
@@ -237,7 +237,7 @@ public class Feature{
 				System.out.println("Burza");
 			}
 			else if(latitude >= 0.5 && longitude >= 0.5) {
-				System.out.println("Œnieg");
+				System.out.println("ï¿½nieg");
 			}
 			
 		} catch (Exception e) {
@@ -252,14 +252,14 @@ public class Feature{
 	private String getDescription() {
 		String s = "Nacisnij START, aby sie polaczyc z symulatorem";
 		s += "\n";
-		s += "Uzytkownik moze wysylac SMS na numer " + Configuration.INSTANCE.getProperty("serviceNumber") + " z nastepujacymi poleceniami ";
+		s += "Pracownik moze wysylac SMS na numer " + Configuration.INSTANCE.getProperty("serviceNumber") + " z nastepujacymi poleceniami ";
 		s += "\n-------------------------------------------\n";
 		
-		s += "\"rejestracja\" pozwala uzytkownikowi na zarejestrowanie sie w serwisie pogodowym \n";
-		s += "\"pogoda\" pozwala uzytkownikowi na sprawdzenie w swoim rejonie pogody \n";
-		s += "\"subskrypcja\" pozwala uzytkownikowi na subskrypcje pogody \n";
-		s += "\"odsubskrybuj\" pozwala uzytkownikowi na zrezygnowanie z dostawania powiadomieñ o pogodzie \n";
-
+		s += "\"start\" pozwala uzytkownikowi na rozpoczecie rejestrowania czasu pracy \n";
+		s += "\"stop\" pozwala uzytkownikowi na zakonczenie rejestrowania czasu pracy \n";
+		s += "\"pauza\" pozwala uzytkownikowi rozpoczecie 15 minutowej przerwy \n";
+		s += "\"lokalizacja \" pozwala uzytkownikowi na zwrocenie aktualnej lokalizacji \n";
+		s += "\"kalendarz \" pozwala uzytkownikowi na zwrocenie listy spotkan na dzisiejszy dzien \n";
 		s += "\n-------------------------------------------\n";
 		s += "Nacisnij STOP, aby zatrzymac aplikacje.\n";
 		return s;

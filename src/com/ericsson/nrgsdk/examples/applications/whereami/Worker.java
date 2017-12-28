@@ -1,6 +1,6 @@
 package com.ericsson.nrgsdk.examples.applications.whereami;
 
-public class User extends Thread
+public class Worker extends Thread
 {
 	private String numer;
 	
@@ -11,7 +11,7 @@ public class User extends Thread
 		return numer;
 	}
 
-	public User(String numer, LocationProcessor aLocationProcessor)
+	public Worker(String numer, LocationProcessor aLocationProcessor)
 	{
 		this.numer = numer;
 		itsLocationProcessor = aLocationProcessor;
@@ -25,7 +25,7 @@ public class User extends Thread
 	{
 		while (true)
 		{
-			System.out.println("Abonent o numerze " + numer + " sprawdza swoj¹ lokalizacjê");
+			System.out.println("Pracownik o numerze " + numer + " sprawdza swoja lokalizacje");
 			itsLocationProcessor.requestLocation(numer);
 			try
 			{

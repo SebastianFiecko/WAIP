@@ -8,28 +8,28 @@ import com.ericsson.nrgsdk.examples.applications.whereami.Feature;
 public class Service 
 {
 	private Feature parent;
-	private ArrayList<User> usersOfService;
+	private ArrayList<Worker> usersOfService;
 	
 	public Service(Feature parent)
 	{
 		this.parent = parent;
 		
-		usersOfService = new ArrayList<User>();
+		usersOfService = new ArrayList<Worker>();
 	}
 	
-	public boolean addUser(User user)
+	public boolean addWorker(Worker worker)
 	{
-		if (!usersOfService.contains(user))
+		if (!usersOfService.contains(worker))
 		{
-			usersOfService.add(user);
-			System.out.println("Dodano u¿ytkownika o numerze " + user.getNumer());
+			usersOfService.add(worker);
+			System.out.println("Dodano uï¿½ytkownika o numerze " + worker.getNumer());
 			return true;
 		}
 		
 		return false;
 	}
 	
-	public ArrayList<User> getUserOfService() {
+	public ArrayList<Worker> getUserOfService() {
 		return usersOfService;
 	}
 
