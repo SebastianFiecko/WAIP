@@ -22,7 +22,7 @@ public class Service
 		if (!usersOfService.contains(worker))
 		{
 			usersOfService.add(worker);
-			System.out.println("Dodano u�ytkownika o numerze " + worker.getNumer());
+			System.out.println("Dodano uzytkownika o numerze " + worker.getNumer());
 			return true;
 		}
 		
