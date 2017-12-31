@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ec77e181-a97f-49c2-9f47-551f57da9103" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/src/com/ericsson/nrgsdk/examples/applications/whereami/Feature.java" afterPath="$PROJECT_DIR$/src/com/ericsson/nrgsdk/examples/applications/whereami/Feature.java" />
-      <change beforePath="$PROJECT_DIR$/src/com/ericsson/nrgsdk/examples/applications/whereami/Worker.java" afterPath="$PROJECT_DIR$/src/com/ericsson/nrgsdk/examples/applications/whereami/Worker.java" />
     </list>
     <ignored path="$PROJECT_DIR$/bin/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -105,9 +103,12 @@
       <file leaf-file-name="Feature.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/ericsson/nrgsdk/examples/applications/whereami/Feature.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1239">
-              <caret line="237" column="62" lean-forward="false" selection-start-line="237" selection-start-column="62" selection-end-line="237" selection-end-column="62" />
-              <folding />
+            <state relative-caret-position="464">
+              <caret line="182" column="59" lean-forward="false" selection-start-line="182" selection-start-column="59" selection-end-line="182" selection-end-column="59" />
+              <folding>
+                <element signature="e#7041#7042#0" expanded="true" />
+                <element signature="e#7083#7084#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -436,7 +437,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2074">
           <caret line="158" column="55" lean-forward="false" selection-start-line="158" selection-start-column="55" selection-end-line="158" selection-end-column="55" />
-          <folding />
+          <folding>
+            <element signature="e#7041#7042#0" expanded="true" />
+            <element signature="e#7083#7084#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -522,9 +526,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/ericsson/nrgsdk/examples/applications/whereami/Feature.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1239">
-          <caret line="237" column="62" lean-forward="false" selection-start-line="237" selection-start-column="62" selection-end-line="237" selection-end-column="62" />
-          <folding />
+        <state relative-caret-position="464">
+          <caret line="182" column="59" lean-forward="false" selection-start-line="182" selection-start-column="59" selection-end-line="182" selection-end-column="59" />
+          <folding>
+            <element signature="e#7041#7042#0" expanded="true" />
+            <element signature="e#7083#7084#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

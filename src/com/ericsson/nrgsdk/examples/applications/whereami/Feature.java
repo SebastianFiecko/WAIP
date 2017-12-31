@@ -178,11 +178,15 @@ public class Feature{
 
 		if (aMessageContent.toLowerCase().equals("lokalizacja") && worker != null ) {
 			worker.start();
-		}	
+		}
+
+		if (aMessageContent.toLowerCase().equals("kalendarz") && worker != null ) {
+			worker.start();
+		}
 	}
 
 	private String getName(String aMessageContent){
-		return aMessageContent.substring(5);;
+		return aMessageContent.substring(5);
 	}
 
 	private Worker checkList(String numer)
