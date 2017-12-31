@@ -6,12 +6,10 @@ import java.util.Date;
 public class Worker extends Thread
 {
 	private String numer;
-	private String ID;
 	private String name;
-	private String lastName;
 	private Date startedWorkAt;
 	private Date endedWorkAt;
-	private int hoursPerDay;
+	private int hoursPerDay = 8;
 	
 	private LocationProcessor itsLocationProcessor;
 	
@@ -20,12 +18,10 @@ public class Worker extends Thread
 		return numer;
 	}
 
-	public Worker(String numer, String id, String name, String lastName, int hoursPerDay, LocationProcessor aLocationProcessor)
+	public Worker(String numer, String name, int hoursPerDay, LocationProcessor aLocationProcessor)
 	{
 		this.numer = numer;
-		this.ID = id;
 		this.name = name;
-		this.lastName = lastName;
 		this.hoursPerDay = hoursPerDay;
 		itsLocationProcessor = aLocationProcessor;
 	}
@@ -55,18 +51,9 @@ public class Worker extends Thread
 		return hoursPerDay;
 	}
 
-	public String getID(){
-		return ID;
-	}
-
 	public String getWorkerName(){
 		return this.name;
 	}
-
-	public String getWorkerLastName(){
-		return this.lastName;
-	}
-
 
 	public void checkLocalization() {
 		itsLocationProcessor.requestLocation(numer);

@@ -152,33 +152,37 @@ public class Feature{
 	 */
 	protected void smsReceived(String aSender, String aReceiver,
 			String aMessageContent) {
-		System.out.println("Odebrano SMS-a o tre�ci: " + aMessageContent);		
+		System.out.println("Odebrano SMS-a o tresci: " + aMessageContent);
 		
 		Worker worker = checkList(aSender);
 		//Rejestracja u�ytkownika
-		if (aMessageContent.toLowerCase().equals("rejestracja") && worker == null ) {
-			worker = new Worker(aSender, itsLocationProcessor);
+		if (aMessageContent.toLowerCase().matches("imie:*") && worker == null ) {
+			worker = new Worker(aSender, getName(aMessageContent), 8, itsLocationProcessor);
 			service.addWorker(worker);
-			System.out.println("Dodano u�ytkownika o numerze: " + worker.getNumer());
+			System.out.println("Dodano pracownika o numerze: " + worker.getNumer());
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Jestes nowym uzytkownikiem serwisu");
 		} else if(aMessageContent.toLowerCase().equals("rejestracja") && worker != null) {
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Nie musisz sie rejestrowac, jestes juz czlonkiem serwisu");
 		}
 		
 		//Sprawdzenie pogody przez u�ytkownika zarejestrowanego w serwisie
-		if (aMessageContent.toLowerCase().equals("pogoda") && worker != null ) {
+		if (aMessageContent.toLowerCase().equals("stop") && worker != null ) {
 			worker.checkLocalization();
 		}
 	
-		//Zapisanie sie do subskrypcji pogodowej
-		if (aMessageContent.toLowerCase().equals("subskrypcja") && worker != null ) {
+
+		if (aMessageContent.toLowerCase().equals("pauza") && worker != null ) {
 			worker.start();
 		}		
 		
-		//Zapisanie sie do subskrypcji pogodowej
-		if (aMessageContent.toLowerCase().equals("odsubskrybuj") && worker != null ) {
-			worker.stop();
+
+		if (aMessageContent.toLowerCase().equals("lokalizacja") && worker != null ) {
+			worker.start();
 		}	
+	}
+
+	private String getName(String aMessageContent){
+		return aMessageContent.substring(5);;
 	}
 
 	private Worker checkList(String numer)
@@ -227,19 +231,14 @@ public class Feature{
 			itsMMSProcessor.sendMMS(Configuration.INSTANCE.getProperty("serviceNumber"), user, messageContent
 					.getBinaryContent(), "Current location");
 
-			if(latitude < 0.5 && longitude < 0.5) {
-				System.out.println("S�onecznie");
+			if(latitude > 0.4 && latitude < 0.5 && longitude > 0.6 && longitude < 0.7) {
+				System.out.println("Witaj w pracy korposzczurku!");
 			}
-			else if(latitude >= 0.5 && longitude < 0.5) {
-				System.out.println("Pada");
+			else{
+				System.out.println("Nie znajdujesz się w pracy!");
 			}
-			else if(latitude < 0.5 && longitude >= 0.5) {
-				System.out.println("Burza");
-			}
-			else if(latitude >= 0.5 && longitude >= 0.5) {
-				System.out.println("�nieg");
-			}
-			
+
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -254,7 +253,7 @@ public class Feature{
 		s += "\n";
 		s += "Pracownik moze wysylac SMS na numer " + Configuration.INSTANCE.getProperty("serviceNumber") + " z nastepujacymi poleceniami ";
 		s += "\n-------------------------------------------\n";
-		
+		s += "\"imie:TWOJE_IMIE\" pozwala uzytkownikowi na rejestracje w systemie \n";
 		s += "\"start\" pozwala uzytkownikowi na rozpoczecie rejestrowania czasu pracy \n";
 		s += "\"stop\" pozwala uzytkownikowi na zakonczenie rejestrowania czasu pracy \n";
 		s += "\"pauza\" pozwala uzytkownikowi rozpoczecie 15 minutowej przerwy \n";
