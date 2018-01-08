@@ -155,7 +155,7 @@ public class Feature{
 		System.out.println("Odebrano SMS-a o tresci: " + aMessageContent);
 		
 		Worker worker = checkList(aSender);
-		//Rejestracja u�ytkownika
+		//Rejestracja uzytkownika
 		if (aMessageContent.toLowerCase().matches("imie:*") && worker == null ) {
 			worker = new Worker(aSender, getName(aMessageContent), 8, itsLocationProcessor);
 			service.addWorker(worker);
@@ -165,19 +165,21 @@ public class Feature{
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Nie musisz sie rejestrowac, jestes juz czlonkiem serwisu");
 		}
 		
-		//Sprawdzenie pogody przez u�ytkownika zarejestrowanego w serwisie
+		//Zatrzymanie rejestrowania czasu pracy przez pracownika
 		if (aMessageContent.toLowerCase().equals("stop") && worker != null ) {
-			worker.checkLocalization();
+			stop();
 		}
 	
 
 		if (aMessageContent.toLowerCase().equals("pauza") && worker != null ) {
-			worker.start();
+			// 15 minut przerwy
+			// zacznij rejestrowac czas pracy po czasie przerwy  - sprawdzajac najpierw lokalizacje, czy pracownik jest w pracy
+			// jezeli nie ma go w pracy po przerwie, zakoncz prace
 		}		
 		
 
 		if (aMessageContent.toLowerCase().equals("lokalizacja") && worker != null ) {
-			worker.start();
+			// niech zwraca to co whereAmI, czyli MMSa z lokalizcja w danym momencie
 		}
 
 		if (aMessageContent.toLowerCase().equals("kalendarz") && worker != null ) {
@@ -223,7 +225,7 @@ public class Feature{
 			if (longitude > 1) {
 				longitude = 1;
 			}
-			
+			/*
 			int x = (int) (latitude * wm - wp / 2);
 			int y = (int) (longitude * hm - hp / 2);
 			Plotter plotter = new Plotter(wm, hm);
@@ -234,12 +236,15 @@ public class Feature{
 			messageContent.addMedia(plotter.createDataSource());
 			itsMMSProcessor.sendMMS(Configuration.INSTANCE.getProperty("serviceNumber"), user, messageContent
 					.getBinaryContent(), "Current location");
-
+			*/
+			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),user,);
 			if(latitude > 0.59 && latitude < 0.68 && longitude > 0.28 && longitude < 0.4) {
 				System.out.println("Witaj w pracy korposzczurku!");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),user,"Witaj w pracy!");
 			}
 			else{
 				System.out.println("Nie znajdujesz się w pracy!");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),user,"Nie znajdujesz sie w pracy!");
 			}
 
 
