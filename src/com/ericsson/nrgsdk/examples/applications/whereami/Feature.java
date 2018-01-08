@@ -73,7 +73,7 @@ public class Feature{
 	 */
 	public Feature(GUI aGUI) {
 		theGUI = aGUI;
-		aGUI.setTitle("Weather service");
+		aGUI.setTitle("Worker control application");
 		aGUI.addTab("Description", getDescription());
 
 	}
@@ -235,7 +235,7 @@ public class Feature{
 			itsMMSProcessor.sendMMS(Configuration.INSTANCE.getProperty("serviceNumber"), user, messageContent
 					.getBinaryContent(), "Current location");
 
-			if(latitude > 0.4 && latitude < 0.5 && longitude > 0.6 && longitude < 0.7) {
+			if(latitude > 0.59 && latitude < 0.68 && longitude > 0.28 && longitude < 0.4) {
 				System.out.println("Witaj w pracy korposzczurku!");
 			}
 			else{
@@ -262,7 +262,7 @@ public class Feature{
 		s += "\"stop\" pozwala uzytkownikowi na zakonczenie rejestrowania czasu pracy \n";
 		s += "\"pauza\" pozwala uzytkownikowi rozpoczecie 15 minutowej przerwy \n";
 		s += "\"lokalizacja \" pozwala uzytkownikowi na zwrocenie aktualnej lokalizacji \n";
-		s += "\"kalendarz \" pozwala uzytkownikowi na zwrocenie listy spotkan na dzisiejszy dzien \n";
+		//s += "\"kalendarz \" pozwala uzytkownikowi na zwrocenie listy spotkan na dzisiejszy dzien \n"; - wycofalbym sie z tego, za duzo roboty
 		s += "\n-------------------------------------------\n";
 		s += "Nacisnij STOP, aby zatrzymac aplikacje.\n";
 		return s;

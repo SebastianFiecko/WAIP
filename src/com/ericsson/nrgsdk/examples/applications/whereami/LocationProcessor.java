@@ -58,7 +58,7 @@ public class LocationProcessor extends IpAppUserLocationAdapter implements
 	}
 
 	/**
-	 * Requests a location update for a set of users. Location updates will be
+	 * Requests a location update for a set of workers. Location updates will be
 	 * returned asynchronously, using Feature.locationReceived.
 	 * 
 	 * @param aUser
