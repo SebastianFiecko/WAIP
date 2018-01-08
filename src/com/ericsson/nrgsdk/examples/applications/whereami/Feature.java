@@ -20,7 +20,10 @@
 
 package com.ericsson.nrgsdk.examples.applications.whereami;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.ImageIcon;
 
@@ -154,7 +157,7 @@ public class Feature{
 			String aMessageContent) {
 		System.out.println("Odebrano SMS-a o tresci: " + aMessageContent);
 		
-		Worker worker = checkList(aSender);
+		Worker worker = checkList(aSender); // dostajemy naszego pracownika, ktory wyslal SMS'a
 		//Rejestracja uzytkownika
 		if (aMessageContent.toLowerCase().matches("imie:*") && worker == null ) {
 			worker = new Worker(aSender, getName(aMessageContent), 8, itsLocationProcessor);
@@ -164,26 +167,54 @@ public class Feature{
 		} else if(aMessageContent.toLowerCase().equals("rejestracja") && worker != null) {
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Nie musisz sie rejestrowac, jestes juz czlonkiem serwisu");
 		}
+
+		//worker chce zaczac monitorowac czas pracy
+		if (aMessageContent.toLowerCase().equals("start") && worker != null ) { //sprawdzamy pracownika
+			itsLocationProcessor.requestLocation(aSender); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
+			LocalDate workerStartedAt = LocalDate.now();
+			worker.setStartedWorkAt(workerStartedAt);
+			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Witaj w pracy!");
+			//jezeli wszystko git, zaczynamy liczenie czasu od momentu request'a
+		}
 		
 		//Zatrzymanie rejestrowania czasu pracy przez pracownika
 		if (aMessageContent.toLowerCase().equals("stop") && worker != null ) {
-			stop();
+			LocalDate workerEndedAt = LocalDate.now();
+			worker.setStartedWorkAt(workerEndedAt);
+			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Do zobaczenia jutro :>!");
 		}
-	
 
+		/* 15 minut przerwy
+		   zacznij rejestrowac czas pracy po czasie przerwy  - sprawdzajac najpierw lokalizacje, czy pracownik jest w pracy
+		   jezeli nie ma go w pracy po przerwie, zakoncz prace */
 		if (aMessageContent.toLowerCase().equals("pauza") && worker != null ) {
-			// 15 minut przerwy
-			// zacznij rejestrowac czas pracy po czasie przerwy  - sprawdzajac najpierw lokalizacje, czy pracownik jest w pracy
-			// jezeli nie ma go w pracy po przerwie, zakoncz prace
+			LocalDate pauseStartedAt = LocalDate.now();
+			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Zaczynasz pauze, odpocznij, masz 15 minut! :>!");
+			/*pytanie, jak po tych "15 minutach" sprawdzic, czy pracownik wrocil do firmy, bo interesuje nas jego polozenie,
+			czy robimy thread.sleep i czekamy, czy wychodzimy stad i za jakis czas powrot do sprawdzenia?
+			*/
+			if(ChronoUnit.MINUTES.between(pauseStartedAt, LocalDate.now()) >= 15){
+				itsLocationProcessor.requestLocation(aSender); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
+				//jezeli jest w robocie, to nic sie nie dzieje, czas leci sobie dalej
+				//jezeli patalacha nie ma w robocie, to stopujemy czas pracy i czekamy az sie pojawi, zeby mu go wystartowac
+				//TODO: obsluga pauzowania
+			}
+
+
 		}		
 		
 
 		if (aMessageContent.toLowerCase().equals("lokalizacja") && worker != null ) {
-			// niech zwraca to co whereAmI, czyli MMSa z lokalizcja w danym momencie
+			// TODO: niech zwraca to co whereAmI, czyli MMSa z lokalizcja w danym momencie
 		}
 
+		/*
 		if (aMessageContent.toLowerCase().equals("kalendarz") && worker != null ) {
 			worker.start();
+		}*/
+
+		if(worker == null){
+			// TODO: rzucamy wyjatek, ale gdzie go zlapiemy? ;)
 		}
 	}
 
@@ -193,13 +224,14 @@ public class Feature{
 
 	private Worker checkList(String numer)
 	{
-		for (Worker a : service.getUserOfService())
-			if (a.getNumer().equalsIgnoreCase(numer))
-				return a;
+		for (Worker w : service.getUserOfService())
+			if (w.getNumer().equalsIgnoreCase(numer))
+				return w;
 		
 		return null;	
 	}
 
+	//TODO: funkcja ta musi jakos zwracac, czy uzytkownik jest w pracy, czy nie, aby mozna bylo egzekwowac czas pracy
 	public void locationReceived(String user, float latitude, float longitude) {
 		try {
 			
@@ -237,10 +269,11 @@ public class Feature{
 			itsMMSProcessor.sendMMS(Configuration.INSTANCE.getProperty("serviceNumber"), user, messageContent
 					.getBinaryContent(), "Current location");
 			*/
-			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),user,);
+
 			if(latitude > 0.59 && latitude < 0.68 && longitude > 0.28 && longitude < 0.4) {
 				System.out.println("Witaj w pracy korposzczurku!");
-				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),user,"Witaj w pracy!");
+
+				//itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),user,"Witaj w pracy!");
 			}
 			else{
 				System.out.println("Nie znajdujesz się w pracy!");

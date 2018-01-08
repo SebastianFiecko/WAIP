@@ -1,15 +1,18 @@
 package com.ericsson.nrgsdk.examples.applications.whereami;
 
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
+
 
 public class Worker extends Thread
 {
 	private String numer;
 	private String name;
-	private Date startedWorkAt;
-	private Date endedWorkAt;
+	private LocalDate startedWorkAt;
+	private LocalDate endedWorkAt;
 	private int hoursPerDay = 8;
+	private long pauseLength = 15;
 	
 	private LocationProcessor itsLocationProcessor;
 	
@@ -27,23 +30,22 @@ public class Worker extends Thread
 	}
 
 	public long getCurrentWorkTime(){
-		Date currentTime = new Date();
-		return currentTime.getTime() - startedWorkAt.getTime();
+		return ChronoUnit.HOURS.between(startedWorkAt,LocalDate.now());
 	}
 
-	public void setStartedWorkAt(Date date){
+	public void setStartedWorkAt(LocalDate date){
 		this.startedWorkAt = date;
 	}
 
-	public Date getStartedWorkAt(){
+	public LocalDate getStartedWorkAt(){
 		return startedWorkAt;
 	}
 
-	public Date getEndedWorkAt(){
+	public LocalDate getEndedWorkAt(){
 		return endedWorkAt;
 	}
 
-	public void setEndedWorkAt(Date date){
+	public void setEndedWorkAt(LocalDate date){
 		this.endedWorkAt = date;
 	}
 
@@ -53,6 +55,10 @@ public class Worker extends Thread
 
 	public String getWorkerName(){
 		return this.name;
+	}
+
+	public long getPauseLength(){
+		return this.pauseLength;
 	}
 
 	public void checkLocalization() {
