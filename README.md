@@ -16,7 +16,7 @@
 
 
 ### Odebranie MMSa z poprawną lokalizacją potwierdza, iż symulator bangla i można przejść do testowania projektu 
-11. Testowo, można zaciągnąć repo Adriana (jest chyba jeszcze sprawne) i wrzucić projekt do IDE.
+11. Testowo, można zaciągnąć repo Adriana (jest chyba jeszcze sprawne) i wrzucić projekt do IDE : https://github.com/anidzgor/WeatherApplicationParlay
 12. Wyłączamy whereAmI i zamykamy okno z logami - symulator ma być w stanie "idle".
 13. Uruchamiamy projekt waipowy w IDE i paczymy w logi, czy wszystko wstało.
 14. Powinno ukazać się podobne okno z informacją o aplikacji, po czym wciśnięcie START nie powinno skutkować wybuchem aplikacji - jeżeli wyskoczy problem uwierzytelniania, witaj w klubie!
