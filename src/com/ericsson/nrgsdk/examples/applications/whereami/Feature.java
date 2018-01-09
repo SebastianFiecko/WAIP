@@ -20,6 +20,7 @@
 
 package com.ericsson.nrgsdk.examples.applications.whereami;
 
+import java.io.Console;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -63,14 +64,14 @@ public class Feature{
 	private GUI theGUI;
 
 	private Integer assignmentId;
-	
+
 	private Service service;
 	private ArrayList<Worker> allWorkers; // lista wszystkich abonentow
 
 	/**
 	 * Initializes a new instance, without starting interaction with Ericsson
 	 * Network Resource Gateway (see start)
-	 * 
+	 *
 	 * @param aGUI
 	 *            the GUI of the application
 	 */
@@ -88,27 +89,27 @@ public class Feature{
 	protected void start() {
 		HOSAMonitor.addListener(SDKToolkit.LOGGER);
 		itsFramework = new FWproxy(Configuration.INSTANCE);
-        try
-        {
-    		itsHosaUIManager = (IpHosaUIManager) itsFramework
-    				.obtainSCF("SP_HOSA_USER_INTERACTION");
-    		itsOsaULManager = (IpUserLocation) itsFramework
-    				.obtainSCF("P_USER_LOCATION");
-        }
-        catch (P_UNKNOWN_SERVICE_TYPE anException)
-        {
-            System.err.println("Service not found. Please refer to the Ericsson Network Resource Gateway User Guide for "
-                            + "a list of which applications that are able to run on which test tools\n"
-                            + anException);
-        }
+		try
+		{
+			itsHosaUIManager = (IpHosaUIManager) itsFramework
+					.obtainSCF("SP_HOSA_USER_INTERACTION");
+			itsOsaULManager = (IpUserLocation) itsFramework
+					.obtainSCF("P_USER_LOCATION");
+		}
+		catch (P_UNKNOWN_SERVICE_TYPE anException)
+		{
+			System.err.println("Service not found. Please refer to the Ericsson Network Resource Gateway User Guide for "
+					+ "a list of which applications that are able to run on which test tools\n"
+					+ anException);
+		}
 		itsSMSProcessor = new SMSProcessor(itsHosaUIManager, this);
 		itsMMSProcessor = new MMSProcessor(itsHosaUIManager, this);
 		itsLocationProcessor = new LocationProcessor(itsOsaULManager, this);
 		System.out.println("Starting SMS notification");
 		assignmentId = new Integer(itsSMSProcessor.startNotifications(Configuration.INSTANCE.getProperty("serviceNumber")));
-		
+
 		allWorkers = new ArrayList<Worker>();
-	    service = new Service(this);
+		service = new Service(this);
 	}
 
 	/**
@@ -151,15 +152,15 @@ public class Feature{
 
 	/**
 	 * Invoked by the SMSProcessor, when a notification is received.
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	protected void smsReceived(String aSender, String aReceiver,
-			String aMessageContent) {
+							   String aMessageContent) {
 		System.out.println("Odebrano SMS-a o tresci: " + aMessageContent);
-		
+
 		Worker worker = checkList(aSender); // dostajemy naszego pracownika, ktory wyslal SMS'a
 		//Rejestracja uzytkownika
-		if (aMessageContent.toLowerCase().matches("imie:*") && worker == null ) {
+		if (aMessageContent.toLowerCase().matches("imie:(.*)") && worker == null ) {
 			worker = new Worker(aSender, getName(aMessageContent), 8, itsLocationProcessor);
 			service.addWorker(worker);
 			System.out.println("Dodano pracownika o numerze: " + worker.getNumer());
@@ -176,7 +177,7 @@ public class Feature{
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Witaj w pracy!");
 			//jezeli wszystko git, zaczynamy liczenie czasu od momentu request'a
 		}
-		
+
 		//Zatrzymanie rejestrowania czasu pracy przez pracownika
 		if (aMessageContent.toLowerCase().equals("stop") && worker != null ) {
 			LocalDate workerEndedAt = LocalDate.now();
@@ -201,17 +202,36 @@ public class Feature{
 			}
 
 
-		}		
-		
+		}
+
 
 		if (aMessageContent.toLowerCase().equals("lokalizacja") && worker != null ) {
 			// TODO: niech zwraca to co whereAmI, czyli MMSa z lokalizcja w danym momencie
 		}
 
-		/*
-		if (aMessageContent.toLowerCase().equals("kalendarz") && worker != null ) {
-			worker.start();
-		}*/
+		if (aMessageContent.toLowerCase().matches("zapkalendarz:(.*)") && worker != null){
+			String day = getDay(aMessageContent);
+			String hour = getHour(aMessageContent);
+			if(worker.setCalendar(Integer.parseInt(day),Integer.parseInt(hour)) == 0){
+				System.out.println("Pomyślnie dokonano wpisu do kalendarza dnia "+day+" o godzinie "+hour);
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Pomyślnie dokonano wpisu do kalendarza dnia "+day+" o godzinie "+hour);
+			}else{
+				System.out.println("Termin dnia "+day+" o godzinie "+hour+" jest już zajęty");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Termin dnia "+day+" o godzinie "+hour+" jest już zajęty");
+			}
+		}
+
+		if (aMessageContent.toLowerCase().matches("sprkalendarz:(.*)") && worker != null){
+			String day = getDay(aMessageContent);
+			String hour = getHour(aMessageContent);
+			if(worker.setCalendar(Integer.parseInt(day),Integer.parseInt(hour)) == 0){
+				System.out.println("Termin dnia "+day+" o godzinie "+hour+" jest wolny");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Termin dnia "+day+" o godzinie "+hour+" jest wolny");
+			}else{
+				System.out.println("Termin dnia "+day+" o godzinie "+hour+" jest zajęty");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Termin dnia "+day+" o godzinie "+hour+" jest zajęty");
+			}
+		}
 
 		if(worker == null){
 			// TODO: rzucamy wyjatek, ale gdzie go zlapiemy? ;)
@@ -221,30 +241,36 @@ public class Feature{
 	private String getName(String aMessageContent){
 		return aMessageContent.substring(5);
 	}
+	private String getDay(String aMessageContent){
+		return aMessageContent.substring(13,15);
+	}
+	private String getHour(String aMessageContent){
+		return aMessageContent.substring(16,18);
+	}
 
 	private Worker checkList(String numer)
 	{
 		for (Worker w : service.getUserOfService())
 			if (w.getNumer().equalsIgnoreCase(numer))
 				return w;
-		
-		return null;	
+
+		return null;
 	}
 
 	//TODO: funkcja ta musi jakos zwracac, czy uzytkownik jest w pracy, czy nie, aby mozna bylo egzekwowac czas pracy
 	public void locationReceived(String user, float latitude, float longitude) {
 		try {
-			
+
 			//Map
 			ImageIcon map = Configuration.INSTANCE.getImage("map.gif");
 			int wm = map.getIconWidth();
 			int hm = map.getIconHeight();
-			
+
 			//Phone
 			ImageIcon phone = Configuration.INSTANCE.getImage("phone.png");
 			int wp = phone.getIconWidth();
 			int hp = phone.getIconHeight();
-			
+
 			if (latitude < 0) {
 				latitude = 0;
 			}
@@ -263,7 +289,7 @@ public class Feature{
 			Plotter plotter = new Plotter(wm, hm);
 			plotter.drawImage(map.getImage(), 0, 0, theGUI);
 			plotter.drawImage(phone.getImage(), x, y, theGUI);
-			
+
 			MMSMessageContent messageContent = new MMSMessageContent();
 			messageContent.addMedia(plotter.createDataSource());
 			itsMMSProcessor.sendMMS(Configuration.INSTANCE.getProperty("serviceNumber"), user, messageContent
@@ -300,7 +326,8 @@ public class Feature{
 		s += "\"stop\" pozwala uzytkownikowi na zakonczenie rejestrowania czasu pracy \n";
 		s += "\"pauza\" pozwala uzytkownikowi rozpoczecie 15 minutowej przerwy \n";
 		s += "\"lokalizacja \" pozwala uzytkownikowi na zwrocenie aktualnej lokalizacji \n";
-		//s += "\"kalendarz \" pozwala uzytkownikowi na zwrocenie listy spotkan na dzisiejszy dzien \n"; - wycofalbym sie z tego, za duzo roboty
+		s += "\"zapkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na zajęcie terminu w kalendarzu(np. zapkalendarz:02,14) \n";
+		s += "\"sprkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na sprawdzenie czy w danym terminie jest zajęty (np. sprkalendarz:31,06)\n";
 		s += "\n-------------------------------------------\n";
 		s += "Nacisnij STOP, aby zatrzymac aplikacje.\n";
 		return s;

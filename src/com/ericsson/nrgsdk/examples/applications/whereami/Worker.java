@@ -7,16 +7,19 @@ import java.time.temporal.ChronoUnit;
 
 public class Worker extends Thread
 {
+	int daysInMonth = 31;
+	int hoursInDay = 24;
+	public int[][] workerCalendar = new int[hoursInDay][daysInMonth];
 	private String numer;
 	private String name;
 	private LocalDate startedWorkAt;
 	private LocalDate endedWorkAt;
 	private int hoursPerDay = 8;
 	private long pauseLength = 15;
-	
+
 	private LocationProcessor itsLocationProcessor;
-	
-	public String getNumer() 
+
+	public String getNumer()
 	{
 		return numer;
 	}
@@ -64,7 +67,24 @@ public class Worker extends Thread
 	public void checkLocalization() {
 		itsLocationProcessor.requestLocation(numer);
 	}
-	
+
+	public int setCalendar(int day, int hour){
+		if (workerCalendar[day-1][hour-1] == 0){
+			workerCalendar[day-1][hour-1] = 1;
+			return 0;
+		}else{
+			return 1;
+		}
+	}
+
+	public int getCalendar(int day, int hour){
+		if (workerCalendar[day-1][hour-1] == 0){
+			return 0;
+		}else{
+			return 1;
+		}
+	}
+
 	public void run()
 	{
 		while (true)
