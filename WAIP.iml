@@ -18,7 +18,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="activation.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/activation.jar!/" />
@@ -29,7 +29,7 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="corba_sun.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/corba_sun.jar!/" />
@@ -38,7 +38,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="coreapi.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/coreapi.jar!/" />
@@ -47,7 +47,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="mail.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/mail.jar!/" />
@@ -56,7 +56,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="testapi.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/testapi.jar!/" />
@@ -65,7 +65,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="utilityapi.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/utilityapi.jar!/" />
@@ -74,6 +74,6 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
   </component>
 </module>
