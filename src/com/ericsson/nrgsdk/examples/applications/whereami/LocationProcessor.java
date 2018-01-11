@@ -64,7 +64,7 @@ public class LocationProcessor extends IpAppUserLocationAdapter implements
 	 * @param aUser
 	 *            the user who's location is requested.
 	 */
-	public void requestLocation(String aUser) {
+	public void requestLocation(String aUser, boolean locationMMS) {
 		TpAddress[] users = new TpAddress[] { SDKToolkit.createTpAddress(aUser) };
 		TpLocationResponseTime responseTime = new TpLocationResponseTime(
 				TpLocationResponseIndicator.P_M_NO_DELAY, -1); // timer
@@ -86,13 +86,13 @@ public class LocationProcessor extends IpAppUserLocationAdapter implements
 	 * location information is available is reported to the callback.
 	 */
 	public void extendedLocationReportRes(int anAssignmentId,
-			TpUserLocationExtended[] reports) {
+			TpUserLocationExtended[] reports, boolean locationMMS) {
 		for (int i = 0; i != reports.length; i++) {
 			String user = reports[i].UserID.AddrString;
 			if (reports[i].StatusCode == TpMobilityError.P_M_OK) {
 				float latitude = reports[i].Locations[0].GeographicalPosition.Latitude;
 				float longtitude = reports[i].Locations[0].GeographicalPosition.Longitude;
-				itsParent.locationReceived(user, latitude, longtitude);
+				itsParent.locationReceived(user, latitude, longtitude, locationMMS);
 			}
 		}
 	}
