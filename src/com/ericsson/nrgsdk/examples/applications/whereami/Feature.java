@@ -209,8 +209,6 @@ public class Feature{
 				//jezeli patalacha nie ma w robocie, to stopujemy czas pracy i czekamy az sie pojawi, zeby mu go wystartowac
 				//TODO: obsluga pauzowania
 			}
-
-
 		}
 
 		if (aMessageContent.toLowerCase().equals("lokalizacja") && worker != null ) {
@@ -239,6 +237,10 @@ public class Feature{
 				System.out.println("Termin dnia "+day+" o godzinie "+hour+" jest zajęty");
 				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Termin dnia "+day+" o godzinie "+hour+" jest zajęty");
 			}
+		}
+
+		if (aMessageContent.toLowerCase().equals("status") && worker != null ) {
+			//musimy zwrocic informacje od klasy Worker ile czasu zostalo do konca pracy, czy to procentowo, czy w godzinach
 		}
 
 		if(worker == null){
@@ -291,7 +293,7 @@ public class Feature{
 			if (longitude > 1) {
 				longitude = 1;
 			}
-			
+
 			if(locationMMS) {
 				int x = (int) (latitude * wm - wp / 2);
 				int y = (int) (longitude * hm - hp / 2);
@@ -308,13 +310,10 @@ public class Feature{
 			if(latitude > 0.59 && latitude < 0.68 && longitude > 0.28 && longitude < 0.4) {
 				System.out.println("Witaj w pracy korposzczurku!");
 				locationCheck = user.toString() + ":" + "at_work";
-
-				//itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),user,"Witaj w pracy!");
 			}
 			else{
 				System.out.println("Nie znajdujesz się w pracy!");
 				locationCheck = user.toString() + ":" + "not_at_work";
-				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),user,"Nie znajdujesz sie w pracy!");
 			}
 
 		} catch (Exception e) {
@@ -335,6 +334,7 @@ public class Feature{
 		s += "\"start\" pozwala uzytkownikowi na rozpoczecie rejestrowania czasu pracy \n";
 		s += "\"stop\" pozwala uzytkownikowi na zakonczenie rejestrowania czasu pracy \n";
 		s += "\"pauza\" pozwala uzytkownikowi rozpoczecie 15 minutowej przerwy \n";
+		s += "\"status\" pozwala uzytkownikowi na sprawdzenie czasu pracy do konca dnia \n";
 		s += "\"lokalizacja \" pozwala uzytkownikowi na zwrocenie aktualnej lokalizacji \n";
 		s += "\"zapkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na zajęcie terminu w kalendarzu(np. zapkalendarz:02,14) \n";
 		s += "\"sprkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na sprawdzenie czy w danym terminie jest zajęty (np. sprkalendarz:31,06)\n";
