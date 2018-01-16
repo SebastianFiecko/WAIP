@@ -24,6 +24,8 @@ import java.io.Console;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Date;
 
 import javax.swing.ImageIcon;
@@ -69,6 +71,8 @@ public class Feature{
 	private ArrayList<Worker> allWorkers; // lista wszystkich abonentow
 	private String locationCheck = "";
 
+	private List<String> managementNumbers;
+
 	/**
 	 * Initializes a new instance, without starting interaction with Ericsson
 	 * Network Resource Gateway (see start)
@@ -109,6 +113,7 @@ public class Feature{
 		System.out.println("Starting SMS notification");
 		assignmentId = new Integer(itsSMSProcessor.startNotifications(Configuration.INSTANCE.getProperty("serviceNumber")));
 
+		managementNumbers = Arrays.asList("0001", "0002", "0003", "0004");
 		allWorkers = new ArrayList<Worker>();
 		service = new Service(this);
 	}
@@ -243,6 +248,23 @@ public class Feature{
 			//musimy zwrocic informacje od klasy Worker ile czasu zostalo do konca pracy, czy to procentowo, czy w godzinach
 		}
 
+		if (aMessageContent.toLowerCase().matches("gdzie:(.*)") && worker != null){ //zapytanie o lokalizację danego numeru
+			if (managementNumbers.contains(worker.getNumer())) { //sprawdzamy czy numer danej osoby ma uprawnienia
+				//wez
+				String reqNum = aMessageContent.split(":")[1];
+				if (checkList(reqNum) != null){
+                    itsLocationProcessor.requestLocation(reqNum,false);
+                    if (locationCheck != ""){
+                        itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownik używający numeru " + reqNum + " jest w pracy");
+                    } else {
+                        itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownika używającego numeru " + reqNum + " nie ma w pracy");
+                    }
+                }
+			} else {
+                itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Nie masz uprawnien do tych danych!");
+			}
+		}
+
 		if(worker == null){
 			// TODO: rzucamy wyjatek, ale gdzie go zlapiemy? ;)
 		}
@@ -338,6 +360,7 @@ public class Feature{
 		s += "\"lokalizacja \" pozwala uzytkownikowi na zwrocenie aktualnej lokalizacji \n";
 		s += "\"zapkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na zajęcie terminu w kalendarzu(np. zapkalendarz:02,14) \n";
 		s += "\"sprkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na sprawdzenie czy w danym terminie jest zajęty (np. sprkalendarz:31,06)\n";
+        s += "\"gdzie:NUMER_PRACOWNIKA \" pozwala uzytkownikowi będącemu w zarządzie na sprawdzenie czy pracownik jest w pracy\n";
 		s += "\n-------------------------------------------\n";
 		s += "Nacisnij STOP, aby zatrzymac aplikacje.\n";
 		return s;
