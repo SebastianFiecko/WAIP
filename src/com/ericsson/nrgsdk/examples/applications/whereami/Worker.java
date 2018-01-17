@@ -65,7 +65,7 @@ public class Worker extends Thread
 	}
 
 	public void checkLocalization() {
-		itsLocationProcessor.requestLocation(numer, true);
+		itsLocationProcessor.requestLocation(numer);
 	}
 
 	public int setCalendar(int day, int hour){
@@ -90,7 +90,7 @@ public class Worker extends Thread
 		while (true)
 		{
 			System.out.println("Pracownik o numerze " + numer + " sprawdza swoja lokalizacje");
-			itsLocationProcessor.requestLocation(numer, true);
+			itsLocationProcessor.requestLocation(numer);
 			try
 			{
 				Thread.sleep(20000);
