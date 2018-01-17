@@ -179,7 +179,7 @@ public class Feature{
 		//jezeli wszystko git, zaczynamy liczenie czasu od momentu request'a
 		if (aMessageContent.toLowerCase().equals("start") && worker != null ) { //sprawdzamy pracownika
 			locationCheck="";
-			itsLocationProcessor.requestLocation(aSender,false); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
+			itsLocationProcessor.requestLocation(aSender); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
 			if(locationCheck.matches(aSender+":"+"at_work")){
 				LocalDate workerStartedAt = LocalDate.now();
 				worker.setStartedWorkAt(workerStartedAt);
@@ -209,7 +209,7 @@ public class Feature{
 			czy robimy thread.sleep i czekamy, czy wychodzimy stad i za jakis czas powrot do sprawdzenia?
 			*/
 			if(ChronoUnit.MINUTES.between(pauseStartedAt, LocalDate.now()) >= 15){
-				itsLocationProcessor.requestLocation(aSender,true); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
+				itsLocationProcessor.requestLocation(aSender); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
 				//jezeli jest w robocie, to nic sie nie dzieje, czas leci sobie dalej
 				//jezeli patalacha nie ma w robocie, to stopujemy czas pracy i czekamy az sie pojawi, zeby mu go wystartowac
 				//TODO: obsluga pauzowania
@@ -217,7 +217,7 @@ public class Feature{
 		}
 
 		if (aMessageContent.toLowerCase().equals("lokalizacja") && worker != null ) {
-			itsLocationProcessor.requestLocation(aSender,true);
+			itsLocationProcessor.requestLocation(aSender);
 		}
 
 		if (aMessageContent.toLowerCase().matches("zapkalendarz:(.*)") && worker != null){
@@ -253,7 +253,7 @@ public class Feature{
 				//wez
 				String reqNum = aMessageContent.split(":")[1];
 				if (checkList(reqNum) != null){
-                    itsLocationProcessor.requestLocation(reqNum,false);
+                    itsLocationProcessor.requestLocation(reqNum);
                     if (locationCheck != ""){
                         itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownik używający numeru " + reqNum + " jest w pracy");
                     } else {
@@ -290,7 +290,7 @@ public class Feature{
 	}
 
 	//TODO: funkcja ta musi jakos zwracac, czy uzytkownik jest w pracy, czy nie, aby mozna bylo egzekwowac czas pracy
-	public void locationReceived(String user, float latitude, float longitude, boolean locationMMS) {
+	public void locationReceived(String user, float latitude, float longitude) {
 		try {
 
 			//Map
@@ -316,18 +316,17 @@ public class Feature{
 				longitude = 1;
 			}
 
-			if(locationMMS) {
-				int x = (int) (latitude * wm - wp / 2);
-				int y = (int) (longitude * hm - hp / 2);
-				Plotter plotter = new Plotter(wm, hm);
-				plotter.drawImage(map.getImage(), 0, 0, theGUI);
-				plotter.drawImage(phone.getImage(), x, y, theGUI);
 
-				MMSMessageContent messageContent = new MMSMessageContent();
-				messageContent.addMedia(plotter.createDataSource());
-				itsMMSProcessor.sendMMS(Configuration.INSTANCE.getProperty("serviceNumber"), user, messageContent
-						.getBinaryContent(), "Current location");
-			}
+			int x = (int) (latitude * wm - wp / 2);
+			int y = (int) (longitude * hm - hp / 2);
+			Plotter plotter = new Plotter(wm, hm);
+			plotter.drawImage(map.getImage(), 0, 0, theGUI);
+			plotter.drawImage(phone.getImage(), x, y, theGUI);
+			MMSMessageContent messageContent = new MMSMessageContent();
+			messageContent.addMedia(plotter.createDataSource());
+			itsMMSProcessor.sendMMS(Configuration.INSTANCE.getProperty("serviceNumber"), user, messageContent
+					.getBinaryContent(), "Current location");
+
 
 			if(latitude > 0.59 && latitude < 0.68 && longitude > 0.28 && longitude < 0.4) {
 				System.out.println("Witaj w pracy korposzczurku!");
