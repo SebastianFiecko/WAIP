@@ -245,15 +245,17 @@ public class Feature{
 		if (aMessageContent.toLowerCase().equals("status") && worker != null )
 		{
 			if (worker.getStartedWorkAt() == null) {
-				System.out.println("Nie zaczales jeszcze pracy.");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Nie zaczales jeszcze pracy.");
 			} else if (worker.getEndedWorkAt() != null) {
-				System.out.println("Praca zakończona.");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Praca zakończona.");
 			} else {
 				long minutes = ChronoUnit.MINUTES.between(worker.getStartedWorkAt(), LocalDateTime.now());
 				if (minutes > 60) {
 					long hours = minutes / 60;
 					minutes = minutes - hours*60;
-					System.out.println("Do końca pracy zostało: " + hours + " godzin, " + minutes + " minut.");
+					itsSMSProcessor
+							.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),
+									aSender,"Do końca pracy zostało: " + hours + " godzin, " + minutes + " minut.");
 				}
 			}
 			//musimy zwrocic informacje od klasy Worker ile czasu zostalo do konca pracy, czy to procentowo, czy w godzinach
