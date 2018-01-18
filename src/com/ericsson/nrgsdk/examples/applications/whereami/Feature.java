@@ -20,31 +20,19 @@
 
 package com.ericsson.nrgsdk.examples.applications.whereami;
 
-import java.io.Console;
-import java.time.LocalDate;
+import com.ericsson.hosasdk.api.HOSAMonitor;
+import com.ericsson.hosasdk.api.fw.P_UNKNOWN_SERVICE_TYPE;
+import com.ericsson.hosasdk.api.hui.IpHosaUIManager;
+import com.ericsson.hosasdk.api.mm.ul.IpUserLocation;
+import com.ericsson.hosasdk.utility.framework.FWproxy;
+import com.ericsson.nrgsdk.examples.tools.SDKToolkit;
+
+import javax.swing.*;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Date;
-
-import javax.swing.ImageIcon;
-
-import com.ericsson.hosasdk.api.HOSAMonitor;
-import com.ericsson.hosasdk.api.TpAddress;
-import com.ericsson.hosasdk.api.TpHosaSendMessageError;
-import com.ericsson.hosasdk.api.TpHosaSendMessageReport;
-import com.ericsson.hosasdk.api.TpHosaUIMessageDeliveryStatus;
-import com.ericsson.hosasdk.api.fw.P_UNKNOWN_SERVICE_TYPE;
-import com.ericsson.hosasdk.api.hui.IpAppHosaUIManager;
-import com.ericsson.hosasdk.api.hui.IpHosaUIManager;
-import com.ericsson.hosasdk.api.mm.ul.IpUserLocation;
-import com.ericsson.hosasdk.api.ui.IpAppUI;
-import com.ericsson.hosasdk.api.ui.TpUIEventInfo;
-import com.ericsson.hosasdk.api.ui.TpUIEventNotificationInfo;
-import com.ericsson.hosasdk.api.ui.TpUIIdentifier;
-import com.ericsson.hosasdk.utility.framework.FWproxy;
-import com.ericsson.nrgsdk.examples.tools.SDKToolkit;
 /**
  * This class implements the logic of the application. It uses processors to
  * interact with Ericsson Network Resource Gateway.
@@ -181,7 +169,7 @@ public class Feature{
 			locationCheck="";
 			itsLocationProcessor.requestLocation(aSender); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
 			if(locationCheck.matches(aSender+":"+"at_work")){
-				LocalDate workerStartedAt = LocalDate.now();
+				LocalDateTime workerStartedAt = LocalDateTime.now();
 				worker.setStartedWorkAt(workerStartedAt);
 				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Witaj w pracy!");
 				locationCheck="";
@@ -194,7 +182,7 @@ public class Feature{
 
 		//Zatrzymanie rejestrowania czasu pracy przez pracownika
 		if (aMessageContent.toLowerCase().equals("stop") && worker != null ) {
-			LocalDate workerEndedAt = LocalDate.now();
+			LocalDateTime workerEndedAt = LocalDateTime.now();
 			worker.setStartedWorkAt(workerEndedAt);
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Do zobaczenia jutro :>!");
 		}
@@ -203,12 +191,12 @@ public class Feature{
 		   zacznij rejestrowac czas pracy po czasie przerwy  - sprawdzajac najpierw lokalizacje, czy pracownik jest w pracy
 		   jezeli nie ma go w pracy po przerwie, zakoncz prace */
 		if (aMessageContent.toLowerCase().equals("pauza") && worker != null ) {
-			LocalDate pauseStartedAt = LocalDate.now();
+			LocalDateTime pauseStartedAt = LocalDateTime.now();
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Zaczynasz pauze, odpocznij, masz 15 minut! :>!");
 			/*pytanie, jak po tych "15 minutach" sprawdzic, czy pracownik wrocil do firmy, bo interesuje nas jego polozenie,
 			czy robimy thread.sleep i czekamy, czy wychodzimy stad i za jakis czas powrot do sprawdzenia?
 			*/
-			if(ChronoUnit.MINUTES.between(pauseStartedAt, LocalDate.now()) >= 15){
+			if(ChronoUnit.MINUTES.between(pauseStartedAt, LocalDateTime.now()) >= 15){
 				itsLocationProcessor.requestLocation(aSender); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
 				//jezeli jest w robocie, to nic sie nie dzieje, czas leci sobie dalej
 				//jezeli patalacha nie ma w robocie, to stopujemy czas pracy i czekamy az sie pojawi, zeby mu go wystartowac
@@ -244,7 +232,20 @@ public class Feature{
 			}
 		}
 
-		if (aMessageContent.toLowerCase().equals("status") && worker != null ) {
+		if (aMessageContent.toLowerCase().equals("status") && worker != null )
+		{
+			if (worker.getStartedWorkAt() == null) {
+				System.out.println("Nie zaczales jeszcze pracy.");
+			} else if (worker.getEndedWorkAt() != null) {
+				System.out.println("Praca zakończona.");
+			} else {
+				long minutes = ChronoUnit.MINUTES.between(worker.getStartedWorkAt(), LocalDateTime.now());
+				if (minutes > 60) {
+					long hours = minutes / 60;
+					minutes = minutes - hours*60;
+					System.out.println("Do końca pracy zostało: " + hours + " godzin, " + minutes + " minut.");
+				}
+			}
 			//musimy zwrocic informacje od klasy Worker ile czasu zostalo do konca pracy, czy to procentowo, czy w godzinach
 		}
 

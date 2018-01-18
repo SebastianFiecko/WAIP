@@ -21,7 +21,6 @@
 package com.ericsson.nrgsdk.examples.applications.whereami;
 
 import java.io.Console;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -181,7 +180,7 @@ public class Feature{
 			locationCheck="";
 			itsLocationProcessor.requestLocation(aSender); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
 			if(locationCheck.matches(aSender+":"+"at_work")){
-				LocalDate workerStartedAt = LocalDate.now();
+				LocalDateTime workerStartedAt = LocalDate.now();
 				worker.setStartedWorkAt(workerStartedAt);
 				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Witaj w pracy!");
 				locationCheck="";
@@ -194,7 +193,7 @@ public class Feature{
 
 		//Zatrzymanie rejestrowania czasu pracy przez pracownika
 		if (aMessageContent.toLowerCase().equals("stop") && worker != null ) {
-			LocalDate workerEndedAt = LocalDate.now();
+			LocalDateTime workerEndedAt = LocalDateTime.now();
 			worker.setStartedWorkAt(workerEndedAt);
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Do zobaczenia jutro :>!");
 		}
@@ -203,12 +202,12 @@ public class Feature{
 		   zacznij rejestrowac czas pracy po czasie przerwy  - sprawdzajac najpierw lokalizacje, czy pracownik jest w pracy
 		   jezeli nie ma go w pracy po przerwie, zakoncz prace */
 		if (aMessageContent.toLowerCase().equals("pauza") && worker != null ) {
-			LocalDate pauseStartedAt = LocalDate.now();
+			LocalDateTime pauseStartedAt = LocalDateTime.now();
 			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Zaczynasz pauze, odpocznij, masz 15 minut! :>!");
 			/*pytanie, jak po tych "15 minutach" sprawdzic, czy pracownik wrocil do firmy, bo interesuje nas jego polozenie,
 			czy robimy thread.sleep i czekamy, czy wychodzimy stad i za jakis czas powrot do sprawdzenia?
 			*/
-			if(ChronoUnit.MINUTES.between(pauseStartedAt, LocalDate.now()) >= 15){
+			if(ChronoUnit.MINUTES.between(pauseStartedAt, LocalDateTime.now()) >= 15){
 				itsLocationProcessor.requestLocation(aSender); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
 				//jezeli jest w robocie, to nic sie nie dzieje, czas leci sobie dalej
 				//jezeli patalacha nie ma w robocie, to stopujemy czas pracy i czekamy az sie pojawi, zeby mu go wystartowac

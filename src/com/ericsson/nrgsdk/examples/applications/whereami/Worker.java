@@ -1,7 +1,6 @@
 package com.ericsson.nrgsdk.examples.applications.whereami;
 
-import java.time.LocalDate;
-import java.time.Period;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 
@@ -12,8 +11,8 @@ public class Worker extends Thread
 	public int[][] workerCalendar = new int[hoursInDay][daysInMonth];
 	private String numer;
 	private String name;
-	private LocalDate startedWorkAt;
-	private LocalDate endedWorkAt;
+	private LocalDateTime startedWorkAt;
+	private LocalDateTime endedWorkAt;
 	private int hoursPerDay = 8;
 	private long pauseLength = 15;
 
@@ -33,22 +32,22 @@ public class Worker extends Thread
 	}
 
 	public long getCurrentWorkTime(){
-		return ChronoUnit.HOURS.between(startedWorkAt,LocalDate.now());
+		return ChronoUnit.HOURS.between(startedWorkAt,LocalDateTime.now());
 	}
 
-	public void setStartedWorkAt(LocalDate date){
+	public void setStartedWorkAt(LocalDateTime date){
 		this.startedWorkAt = date;
 	}
 
-	public LocalDate getStartedWorkAt(){
+	public LocalDateTime getStartedWorkAt(){
 		return startedWorkAt;
 	}
 
-	public LocalDate getEndedWorkAt(){
+	public LocalDateTime getEndedWorkAt(){
 		return endedWorkAt;
 	}
 
-	public void setEndedWorkAt(LocalDate date){
+	public void setEndedWorkAt(LocalDateTime date){
 		this.endedWorkAt = date;
 	}
 
