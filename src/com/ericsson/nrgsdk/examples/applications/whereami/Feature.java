@@ -57,7 +57,7 @@ public class Feature{
 
 	private Service service;
 	private ArrayList<Worker> allWorkers; // lista wszystkich abonentow
-	private String locationCheck = "";
+	private static String locationCheck = "";
 
 	private List<String> managementNumbers;
 
@@ -168,14 +168,14 @@ public class Feature{
 		if (aMessageContent.toLowerCase().equals("start") && worker != null ) { //sprawdzamy pracownika
 			locationCheck="";
 			itsLocationProcessor.requestLocation(aSender); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
-			if(locationCheck.matches(aSender+":"+"at_work")){
+			if(locationCheck.matches("at_work")){
 				LocalDateTime workerStartedAt = LocalDateTime.now();
 				worker.setStartedWorkAt(workerStartedAt);
-				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Witaj w pracy!");
+				//itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Witaj w pracy!");
 				locationCheck="";
 			}
 			else{
-				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Nie znajdujesz sie w pracy!");
+				//itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Nie znajdujesz sie w pracy!");
 				locationCheck="";
 			}
 		}
@@ -245,18 +245,23 @@ public class Feature{
 		if (aMessageContent.toLowerCase().equals("status") && worker != null )
 		{
 			if (worker.getStartedWorkAt() == null) {
+				System.out.println("Nie zaczales jeszcze pracy.");
 				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Nie zaczales jeszcze pracy.");
 			} else if (worker.getEndedWorkAt() != null) {
-				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Praca zakończona.");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Praca zakonczona.");
+				System.out.println("Praca zakonczona.");
 			} else {
+				System.out.println(worker.getStartedWorkAt());
 				long minutes = ChronoUnit.MINUTES.between(worker.getStartedWorkAt(), LocalDateTime.now());
-				if (minutes > 60) {
-					long hours = minutes / 60;
-					minutes = minutes - hours*60;
-					itsSMSProcessor
-							.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),
-									aSender,"Do końca pracy zostało: " + hours + " godzin, " + minutes + " minut.");
+				System.out.println(minutes);
+				long hours = 0;
+				long difference = 480 - minutes;
+				if (difference > 60) {
+					hours = difference / 60;
+					minutes = difference - hours*60;
 				}
+
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Do konca pracy zostalo: " + hours + " godzin, " + minutes + " minut.");
 			}
 			//musimy zwrocic informacje od klasy Worker ile czasu zostalo do konca pracy, czy to procentowo, czy w godzinach
 		}
@@ -266,15 +271,15 @@ public class Feature{
 				//wez
 				String reqNum = aMessageContent.split(":")[1];
 				if (checkList(reqNum) != null){
-                    itsLocationProcessor.requestLocation(reqNum);
-                    if (locationCheck != ""){
-                        itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownik uzywajacy numeru " + reqNum + " jest w pracy");
-                    } else {
-                        itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownika uzywajacego numeru " + reqNum + " nie ma w pracy");
-                    }
-                }
+					itsLocationProcessor.requestLocation(reqNum);
+					if (locationCheck != ""){
+						itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownik uzywajacy numeru " + reqNum + " jest w pracy");
+					} else {
+						itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownika uzywajacego numeru " + reqNum + " nie ma w pracy");
+					}
+				}
 			} else {
-                itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Nie masz uprawnien do tych danych!");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Nie masz uprawnien do tych danych!");
 			}
 		}
 
@@ -340,14 +345,18 @@ public class Feature{
 			itsMMSProcessor.sendMMS(Configuration.INSTANCE.getProperty("serviceNumber"), user, messageContent
 					.getBinaryContent(), "Current location");
 
+			Worker worker = checkList(user); // dostajemy naszego pracownika, ktory wyslal SMS'a
 
 			if(latitude > 0.59 && latitude < 0.68 && longitude > 0.28 && longitude < 0.4) {
-				System.out.println("Witaj w pracy korposzczurku!");
-				locationCheck = user.toString() + ":" + "at_work";
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), user, "Witaj w pracy korposzczurku!");
+				worker.setStartedWorkAt(LocalDateTime.now());
+				System.out.println("Witaj w pracy korposzczurku!" + user);
+				locationCheck = "at_work";
 			}
 			else{
-				System.out.println("Nie znajdujesz sie w pracy!");
-				locationCheck = user.toString() + ":" + "not_at_work";
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),user,"Nie znajdujesz sie w pracy!");
+				System.out.println("Nie znajdujesz sie w pracy!" + user);
+				locationCheck = "not_at_work";
 			}
 
 		} catch (Exception e) {
@@ -372,7 +381,7 @@ public class Feature{
 		s += "\"lokalizacja \" pozwala uzytkownikowi na zwrocenie aktualnej lokalizacji \n";
 		s += "\"zapkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na zajecie terminu w kalendarzu(np. zapkalendarz:02,14) \n";
 		s += "\"sprkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na sprawdzenie czy w danym terminie jest zajety (np. sprkalendarz:31,06)\n";
-        s += "\"gdzie:NUMER_PRACOWNIKA \" pozwala uzytkownikowi bedacemu w zarzadzie na sprawdzenie czy pracownik jest w pracy\n";
+		s += "\"gdzie:NUMER_PRACOWNIKA \" pozwala uzytkownikowi bedacemu w zarzadzie na sprawdzenie czy pracownik jest w pracy\n";
 		s += "\n-------------------------------------------\n";
 		s += "Nacisnij STOP, aby zatrzymac aplikacje.\n";
 		return s;
