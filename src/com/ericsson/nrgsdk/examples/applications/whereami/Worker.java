@@ -15,6 +15,7 @@ public class Worker extends Thread
 	private LocalDateTime endedWorkAt;
 	private int hoursPerDay = 8;
 	private long pauseLength = 15;
+	private LocalDateTime pauseStart;
 
 	private LocationProcessor itsLocationProcessor;
 
@@ -103,5 +104,13 @@ public class Worker extends Thread
 				System.out.println("InterruptedException" + e.getMessage());
 			}
 		}
+	}
+
+	public LocalDateTime getPauseStart() {
+		return pauseStart;
+	}
+
+	public void setPauseStart(LocalDateTime pauseStart) {
+		this.pauseStart = pauseStart;
 	}
 }

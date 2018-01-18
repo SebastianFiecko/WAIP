@@ -191,16 +191,26 @@ public class Feature{
 		   zacznij rejestrowac czas pracy po czasie przerwy  - sprawdzajac najpierw lokalizacje, czy pracownik jest w pracy
 		   jezeli nie ma go w pracy po przerwie, zakoncz prace */
 		if (aMessageContent.toLowerCase().equals("pauza") && worker != null ) {
-			LocalDateTime pauseStartedAt = LocalDateTime.now();
-			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Zaczynasz pauze, odpocznij, masz 15 minut! :>!");
+			itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"),aSender,"Zaczynasz pauze, odpocznij, masz 15 minut! :>! Po pauzie wyslij 'koniecpauzy");
 			/*pytanie, jak po tych "15 minutach" sprawdzic, czy pracownik wrocil do firmy, bo interesuje nas jego polozenie,
 			czy robimy thread.sleep i czekamy, czy wychodzimy stad i za jakis czas powrot do sprawdzenia?
 			*/
-			if(ChronoUnit.MINUTES.between(pauseStartedAt, LocalDateTime.now()) >= 15){
-				itsLocationProcessor.requestLocation(aSender); //sprawdzamy lokalizacje - nie mamy zwrotki od funkcji, trzeba dorobic!
-				//jezeli jest w robocie, to nic sie nie dzieje, czas leci sobie dalej
-				//jezeli patalacha nie ma w robocie, to stopujemy czas pracy i czekamy az sie pojawi, zeby mu go wystartowac
-				//TODO: obsluga pauzowania
+			worker.setPauseStart(LocalDateTime.now());
+		}
+
+		if (aMessageContent.toLowerCase().equals("koniecpauzy") && worker != null ) {
+			if (worker.getPauseStart() == null) {
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Blad! Najpierw trzeba zaczac pauze.");
+			} else {
+				long pauseMinutes = ChronoUnit.MINUTES.between(worker.getPauseStart(), LocalDateTime.now());
+				if (pauseMinutes > worker.getPauseLength()) {
+					worker.getStartedWorkAt().minus((pauseMinutes - worker.getPauseLength()), ChronoUnit.MINUTES);
+					itsSMSProcessor
+							.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,
+									"Pauzowales za dlugo. " + (pauseMinutes - worker.getPauseLength()) + "do odpracowania.");
+				} else {
+					itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Witaj ponownie! :)");
+				}
 			}
 		}
 
