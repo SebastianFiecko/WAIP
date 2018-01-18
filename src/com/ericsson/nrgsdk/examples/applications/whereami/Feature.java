@@ -224,11 +224,11 @@ public class Feature{
 			String day = getDay(aMessageContent);
 			String hour = getHour(aMessageContent);
 			if(worker.setCalendar(Integer.parseInt(day),Integer.parseInt(hour)) == 0){
-				System.out.println("Pomyślnie dokonano wpisu do kalendarza dnia "+day+" o godzinie "+hour);
-				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Pomyślnie dokonano wpisu do kalendarza dnia "+day+" o godzinie "+hour);
+				System.out.println("Pomyslnie dokonano wpisu do kalendarza dnia "+day+" o godzinie "+hour);
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Pomyslnie dokonano wpisu do kalendarza dnia "+day+" o godzinie "+hour);
 			}else{
-				System.out.println("Termin dnia "+day+" o godzinie "+hour+" jest już zajęty");
-				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Termin dnia "+day+" o godzinie "+hour+" jest już zajęty");
+				System.out.println("Termin dnia "+day+" o godzinie "+hour+" jest juz zajety");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender, "Termin dnia "+day+" o godzinie "+hour+" jest juz zajety");
 			}
 		}
 
@@ -239,8 +239,8 @@ public class Feature{
 				System.out.println("Termin dnia "+day+" o godzinie "+hour+" jest wolny");
 				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Termin dnia "+day+" o godzinie "+hour+" jest wolny");
 			}else{
-				System.out.println("Termin dnia "+day+" o godzinie "+hour+" jest zajęty");
-				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Termin dnia "+day+" o godzinie "+hour+" jest zajęty");
+				System.out.println("Termin dnia "+day+" o godzinie "+hour+" jest zajety");
+				itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Termin dnia "+day+" o godzinie "+hour+" jest zajety");
 			}
 		}
 
@@ -248,16 +248,16 @@ public class Feature{
 			//musimy zwrocic informacje od klasy Worker ile czasu zostalo do konca pracy, czy to procentowo, czy w godzinach
 		}
 
-		if (aMessageContent.toLowerCase().matches("gdzie:(.*)") && worker != null){ //zapytanie o lokalizację danego numeru
+		if (aMessageContent.toLowerCase().matches("gdzie:(.*)") && worker != null){ //zapytanie o lokalizacje danego numeru
 			if (managementNumbers.contains(worker.getNumer())) { //sprawdzamy czy numer danej osoby ma uprawnienia
 				//wez
 				String reqNum = aMessageContent.split(":")[1];
 				if (checkList(reqNum) != null){
                     itsLocationProcessor.requestLocation(reqNum);
                     if (locationCheck != ""){
-                        itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownik używający numeru " + reqNum + " jest w pracy");
+                        itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownik uzywajacy numeru " + reqNum + " jest w pracy");
                     } else {
-                        itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownika używającego numeru " + reqNum + " nie ma w pracy");
+                        itsSMSProcessor.sendSMS(Configuration.INSTANCE.getProperty("serviceNumber"), aSender,"Pracownika uzywajacego numeru " + reqNum + " nie ma w pracy");
                     }
                 }
 			} else {
@@ -333,7 +333,7 @@ public class Feature{
 				locationCheck = user.toString() + ":" + "at_work";
 			}
 			else{
-				System.out.println("Nie znajdujesz się w pracy!");
+				System.out.println("Nie znajdujesz sie w pracy!");
 				locationCheck = user.toString() + ":" + "not_at_work";
 			}
 
@@ -357,9 +357,9 @@ public class Feature{
 		s += "\"pauza\" pozwala uzytkownikowi rozpoczecie 15 minutowej przerwy \n";
 		s += "\"status\" pozwala uzytkownikowi na sprawdzenie czasu pracy do konca dnia \n";
 		s += "\"lokalizacja \" pozwala uzytkownikowi na zwrocenie aktualnej lokalizacji \n";
-		s += "\"zapkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na zajęcie terminu w kalendarzu(np. zapkalendarz:02,14) \n";
-		s += "\"sprkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na sprawdzenie czy w danym terminie jest zajęty (np. sprkalendarz:31,06)\n";
-        s += "\"gdzie:NUMER_PRACOWNIKA \" pozwala uzytkownikowi będącemu w zarządzie na sprawdzenie czy pracownik jest w pracy\n";
+		s += "\"zapkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na zajecie terminu w kalendarzu(np. zapkalendarz:02,14) \n";
+		s += "\"sprkalendarz:DZIEN_MIESIACA(DD),GODZINA(HH) \" pozwala uzytkownikowi na sprawdzenie czy w danym terminie jest zajety (np. sprkalendarz:31,06)\n";
+        s += "\"gdzie:NUMER_PRACOWNIKA \" pozwala uzytkownikowi bedacemu w zarzadzie na sprawdzenie czy pracownik jest w pracy\n";
 		s += "\n-------------------------------------------\n";
 		s += "Nacisnij STOP, aby zatrzymac aplikacje.\n";
 		return s;
